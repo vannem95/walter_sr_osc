@@ -1,18 +1,25 @@
 body_list:
-  - base_link
-  - front_right_calf
-  - front_left_calf
-  - hind_right_calf
-  - hind_left_calf
+  - torso_left_front_wheel
+  - torso_left_rear_wheel
+  - torso_right_front_wheel
+  - torso_right_rear_wheel
+  - head_left_front_wheel
+  - head_left_rear_wheel
+  - head_right_front_wheel
+  - head_right_rear_wheel
 
 noncontact_site_list:
-  - imu
+
 
 contact_site_list:
-  - front_right_foot
-  - front_left_foot
-  - hind_right_foot
-  - hind_left_foot
+  - tlf_wheel_site
+  - tlr_wheel_site
+  - trf_wheel_site
+  - trr_wheel_site
+  - hlf_wheel_site
+  - hlr_wheel_site
+  - hrf_wheel_site
+  - hrr_wheel_site
 
 friction_coefficient: 0.8
 
