@@ -1,14 +1,18 @@
 body_list:
+  - torso
   - torso_left_front_wheel
   - torso_left_rear_wheel
   - torso_right_front_wheel
   - torso_right_rear_wheel
+  - head
   - head_left_front_wheel
   - head_left_rear_wheel
   - head_right_front_wheel
   - head_right_rear_wheel
 
 noncontact_site_list:
+  - torso_site
+  - head_site
 
 
 contact_site_list:
@@ -24,15 +28,25 @@ contact_site_list:
 friction_coefficient: 0.8
 
 weights_config:
-  base_translational_tracking: 100.0
-  base_rotational_tracking: 100.0
-  fl_translational_tracking: 10.0
-  fl_rotational_tracking: 10.0
-  fr_translational_tracking: 10.0
-  fr_rotational_tracking: 10.0
-  hl_translational_tracking: 10.0
-  hl_rotational_tracking: 10.0
-  hr_translational_tracking: 10.0
-  hr_rotational_tracking: 10.0
+  torso_translational_tracking: 100.0
+  torso_rotational_tracking: 100.0
+  tlf_translational_tracking: 10.0
+  tlf_rotational_tracking: 10.0
+  tlr_translational_tracking: 10.0
+  tlr_rotational_tracking: 10.0
+  trf_translational_tracking: 10.0
+  trf_rotational_tracking: 10.0
+  trr_translational_tracking: 10.0
+  trr_rotational_tracking: 10.0
+  head_translational_tracking: 100.0
+  head_rotational_tracking: 100.0
+  hlf_translational_tracking: 10.0
+  hlf_rotational_tracking: 10.0
+  hlr_translational_tracking: 10.0
+  hlr_rotational_tracking: 10.0
+  hrf_translational_tracking: 10.0
+  hrf_rotational_tracking: 10.0
+  hrr_translational_tracking: 10.0
+  hrr_rotational_tracking: 10.0
   torque: 1.0e-4
   regularization: 1.0e-4
