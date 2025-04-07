@@ -1,10 +1,10 @@
 body_list:
   - torso
+  - head
   - torso_left_front_wheel
   - torso_left_rear_wheel
   - torso_right_front_wheel
   - torso_right_rear_wheel
-  - head
   - head_left_front_wheel
   - head_left_rear_wheel
   - head_right_front_wheel
@@ -30,6 +30,8 @@ friction_coefficient: 0.8
 weights_config:
   torso_translational_tracking: 100.0
   torso_rotational_tracking: 100.0
+  head_translational_tracking: 100.0
+  head_rotational_tracking: 100.0
   tlf_translational_tracking: 10.0
   tlf_rotational_tracking: 10.0
   tlr_translational_tracking: 10.0
@@ -38,8 +40,6 @@ weights_config:
   trf_rotational_tracking: 10.0
   trr_translational_tracking: 10.0
   trr_rotational_tracking: 10.0
-  head_translational_tracking: 100.0
-  head_rotational_tracking: 100.0
   hlf_translational_tracking: 10.0
   hlf_rotational_tracking: 10.0
   hlr_translational_tracking: 10.0
