@@ -9,11 +9,11 @@ import mujoco
 
 from casadi import MX, DM
 
-from python.runfiles import Runfiles
+# from python.runfiles import Runfiles
 
 
-FLAGS = flags.FLAGS
-flags.DEFINE_string("filepath", None, "Bazel filepath to the autogen folder (This should be automatically determinded by the genrule).")
+# FLAGS = flags.FLAGS
+# flags.DEFINE_string("filepath", None, "Bazel filepath to the autogen folder (This should be automatically determinded by the genrule).")
 
 
 class AutoGen():
@@ -21,16 +21,18 @@ class AutoGen():
         self.mj_model = mj_model
 
         # Parse Configuration YAML File:
-        r = Runfiles.Create()
+        # r = Runfiles.Create()
 
         #-------------------------------------------------------------------------------------------------------------------------
         # yaml path
         #-------------------------------------------------------------------------------------------------------------------------
-        with open(r.Rlocation("operational-space-controller/config/unitree_go2/unitree_go2_config.yaml"), "r") as file:
-            config = yaml.safe_load(file)
+        # with open(r.Rlocation("operational-space-controller/config/unitree_go2/unitree_go2_config.yaml"), "r") as file:
+        #     config = yaml.safe_load(file)
+        with open("walter_sr_config.yaml", 'r') as file:
+            config = yaml.safe_load(file)        
 
         # Get Weight Configuration:
-        self.weights_config = config['weights_config']
+        self.weights_config = config["weights_config"]
 
         # Get Body and Site IDs:
         self.body_list = [f'"{body}"sv' for body in config['body_list']]
@@ -54,8 +56,26 @@ class AutoGen():
         self.u_idx = self.dv_idx + self.u_size
         self.z_idx = self.u_idx + self.z_size
 
+        """
+            torso_x
+            y
+            z
+            wx
+            wy
+            wz
+            q_1
+            .
+            .
+            .
+            q_n
+        """
+        body_dim = self.dv_size - self.u_size
         self.B: DM = casadi.vertcat(
-            DM.zeros((6, self.u_size)),
+            # DM.zeros((6, self.u_size)),
+        #-------------------------------------------------------------------------------------------------------------------------
+        # 6 to 7
+        #-------------------------------------------------------------------------------------------------------------------------
+            DM.zeros((body_dim, self.u_size)),
             DM.eye(self.u_size),
         )
 
@@ -88,6 +108,12 @@ class AutoGen():
         z = q[self.u_idx:self.z_idx]
 
         # Dynamics:
+
+        # print('M',M @ dv)
+        # print('C',C)
+        # print('B',self.B @ u)
+        # print('Jz',J_contact @ z)
+
         equality_constraints = M @ dv + C - self.B @ u - J_contact @ z
 
         return equality_constraints
@@ -164,15 +190,15 @@ class AutoGen():
         #-------------------------------------------------------------------------------------------------------------------------
         # edits
         #-------------------------------------------------------------------------------------------------------------------------
-        ddx_torso_p, ddx_tlf_p, ddx_tlr_p, ddx_trf_p, ddx_trr_p, ddx_head_p, ddx_hlf_p, ddx_hlr_p, ddx_hrf_p, ddx_hrr_p = casadi.vertsplit_n(ddx_task_p, self.num_site_ids)
-        ddx_torso_r, ddx_tlf_r, ddx_tlr_r, ddx_trf_r, ddx_trr_r, ddx_head_r, ddx_hlf_r, ddx_hlr_r, ddx_hrf_r, ddx_hrr_r = casadi.vertsplit_n(ddx_task_r, self.num_site_ids)
+        ddx_torso_p, ddx_tlf_p, ddx_tlr_p, ddx_trf_p, ddx_trr_p, ddx_hlf_p, ddx_hlr_p, ddx_hrf_p, ddx_hrr_p = casadi.vertsplit_n(ddx_task_p, self.num_site_ids)
+        ddx_torso_r, ddx_tlf_r, ddx_tlr_r, ddx_trf_r, ddx_trr_r, ddx_hlf_r, ddx_hlr_r, ddx_hrf_r, ddx_hrr_r = casadi.vertsplit_n(ddx_task_r, self.num_site_ids)
 
         # Split Desired Task Acceleration:
         desired_task_p, desired_task_r = casadi.horzsplit_n(desired_task_ddx, 2)
         desired_task_p = casadi.vertsplit_n(desired_task_p, self.num_site_ids)
         desired_task_r = casadi.vertsplit_n(desired_task_r, self.num_site_ids)
-        desired_torso_p, desired_tlf_p, desired_tlr_p, desired_trf_p, desired_trr_p, desired_head_p, desired_hlf_p, desired_hlr_p, desired_hrf_p, desired_hrr_p = map(lambda x: x.T, desired_task_p)
-        desired_torso_r, desired_tlf_r, desired_tlr_r, desired_trf_r, desired_trr_r, desired_head_r, desired_hlf_r, desired_hlr_r, desired_hrf_r, desired_hrr_r = map(lambda x: x.T, desired_task_r)
+        desired_torso_p, desired_tlf_p, desired_tlr_p, desired_trf_p, desired_trr_p, desired_hlf_p, desired_hlr_p, desired_hrf_p, desired_hrr_p = map(lambda x: x.T, desired_task_p)
+        desired_torso_r, desired_tlf_r, desired_tlr_r, desired_trf_r, desired_trr_r, desired_hlf_r, desired_hlr_r, desired_hrf_r, desired_hrr_r = map(lambda x: x.T, desired_task_r)
 
         # I could make this more general at the cost of readability...
         # ddx_task_p = casadi.vertsplit_n(ddx_task_p, self.num_site_ids)
@@ -188,7 +214,7 @@ class AutoGen():
             'torso_rotational_tracking': self._objective_tracking(
                 ddx_torso_r,
                 desired_torso_r,
-            ),
+            ),          
             'tlf_translational_tracking': self._objective_tracking(
                 ddx_tlf_p,
                 desired_tlf_p,
@@ -220,14 +246,6 @@ class AutoGen():
             'trr_rotational_tracking': self._objective_tracking(
                 ddx_trr_r,
                 desired_trr_r,
-            ),
-            'head_translational_tracking': self._objective_tracking(
-                ddx_head_p,
-                desired_head_p,
-            ),
-            'head_rotational_tracking': self._objective_tracking(
-                ddx_head_r,
-                desired_head_r,
             ),
             'hlf_translational_tracking': self._objective_tracking(
                 ddx_hlf_p,
@@ -404,7 +422,7 @@ class AutoGen():
             generator = casadi.CodeGenerator(f"{filename}.cc", opts)
             for function in casadi_function:
                 generator.add(function)
-        generator.generate(FLAGS.filepath+"/")
+        generator.generate()
 
     def generate_defines(self):
         cc_code = f"""#pragma once
@@ -453,22 +471,25 @@ namespace operational_space_controller::constants {{
 }}
         """
 
-        filepath = os.path.join(FLAGS.filepath, "autogen_defines.h")
+        filepath = os.path.join("autogen_defines.h")
         with open(filepath, "w") as f:
             f.write(cc_code)
 
 
 def main(argv):
     # Initialize Mujoco Model:
-    r = Runfiles.Create()
+    # r = Runfiles.Create()
     #-------------------------------------------------------------------------------------------------------------------------
     # xml path
     #-------------------------------------------------------------------------------------------------------------------------
-    mj_model = mujoco.MjModel.from_xml_path(
-        r.Rlocation(
-            path="mujoco-models/models/unitree_go2/go2.xml",
-        )
-    )
+    # mj_model = mujoco.MjModel.from_xml_path(
+    #     r.Rlocation(
+    #         path="mujoco-models/models/unitree_go2/go2.xml",
+    #     )
+    # )
+
+    mj_model = mujoco.MjModel.from_xml_path("WaLTER_Senior.xml")
+
 
     # Generate Functions:
     autogen = AutoGen(mj_model)

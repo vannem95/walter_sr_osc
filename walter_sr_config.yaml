@@ -1,6 +1,5 @@
 body_list:
   - torso
-  - head
   - torso_left_front_wheel
   - torso_left_rear_wheel
   - torso_right_front_wheel
@@ -12,7 +11,6 @@ body_list:
 
 noncontact_site_list:
   - torso_site
-  - head_site
 
 
 contact_site_list:
